@@ -1,0 +1,71 @@
+
+Six stations (0, 1, 2, 3, 4, 5).
+Connections between stations: 0-1, 0-2, 1-3, 2-3, 2-4, and 3-5.
+Available frquencies : 4 
+
+Five stations (0, 1, 2, 3, 4).
+Connections between stations: 0-1, 0-2, 1-2, 1-3, 2-4, 3-4.
+Available frquencies : 3 
+
+
+class Graph:
+    def __init__(self, vertices):
+        self.vertices = vertices
+        self.graph = {}
+
+    def add_edge(self, u, v):
+        if u not in self.graph:
+            self.graph[u] = []
+        if v not in self.graph:
+            self.graph[v] = []
+        self.graph[u].append(v)
+        self.graph[v].append(u)
+
+    def is_safe(self, v, c, color):
+        for neighbor in self.graph[v]:
+            if color[neighbor] == c:
+                return False
+        return True
+
+    def graph_coloring(self, m):
+        color = [-1] * self.vertices
+
+        def graph_color_util(v):
+            if v == self.vertices:
+                return True
+
+            for c in range(1, m + 1):
+                if self.is_safe(v, c, color):
+                    color[v] = c
+                    if graph_color_util(v + 1):
+                        return True
+                    color[v] = -1
+
+        if graph_color_util(0) is False:
+            return None  # No solution with m colors
+        return color
+
+def main():
+    num_stations = int(input("Enter the number of radio stations: "))
+    g = Graph(num_stations)
+
+    while True:
+        edge = input("Enter an edge (format: 'station1 station2', press Enter to stop): ")
+        if edge == "":
+            break
+        station1, station2 = map(int, edge.split())
+        g.add_edge(station1, station2)
+
+    num_colors = int(input("Enter the number of available frequencies: "))
+
+    coloring = g.graph_coloring(num_colors)
+    if coloring:
+        print("Radio Station - Frequency")
+        for i in range(num_stations):
+            print(f"Station {i}: Frequency {coloring[i]}")
+    else:
+        print("No solution with the given number of frequencies.")
+
+if __name__ == "__main__":
+    main()
+

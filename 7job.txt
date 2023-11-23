@@ -1,0 +1,51 @@
+
+import numpy as np
+import itertools
+
+def branch_and_bound(n, cost_matrix):
+    def calculate_bound(assignment):
+        bound = 0
+        unassigned_workers = list(range(n))
+        for worker, job in enumerate(assignment):
+            bound += cost_matrix[worker][job]
+            unassigned_workers.remove(worker)
+        for worker in unassigned_workers:
+            min_cost = min(cost_matrix[worker])
+            bound += min_cost
+        return bound
+
+    def dfs(assignment, depth, cost, best_assignment, best_cost):
+        if depth == n:
+            if cost < best_cost[0]:
+                best_cost[0] = cost
+                best_assignment[0] = assignment.copy()
+            return
+
+        for job in range(n):
+            if job not in assignment:
+                new_assignment = assignment.copy()
+                new_assignment.append(job)
+                bound = calculate_bound(new_assignment)
+                if bound < best_cost[0]:
+                    dfs(new_assignment, depth + 1, cost + cost_matrix[depth][job], best_assignment, best_cost)
+
+    best_assignment = [None]
+    best_cost = [float('inf')]
+    initial_assignment = []
+    dfs(initial_assignment, 0, 0, best_assignment, best_cost)
+
+    return best_assignment[0], best_cost[0]
+
+
+if __name__ == "__main__":
+    n = 4  
+    cost_matrix = np.array([
+        [9, 2, 7, 8],
+        [6, 4, 3, 7],
+        [5, 8, 1, 8],
+        [7, 6, 9, 4]
+    ])
+
+    assignment, total_cost = branch_and_bound(n, cost_matrix)
+    print("Optimal Assignment:", assignment)
+    print("Total Cost:", total_cost)

@@ -1,0 +1,36 @@
+
+import heapq
+
+class Node:
+    
+    def __init__ (self,data,frequency,left=None,right=None):
+        self.data=data
+        self.frequency=frequency
+        self.left=left
+        self.right=right
+
+        self.h=''
+
+    def __lt__(self,next):
+        return (self.frequency<next.frequency)
+def display(node,value=''):
+    nval=value+str(node.h)
+    if(node.left):
+        display(node.left,nval)
+    if(node.right):
+        display(node.right,nval)
+    if(not node.left and not node.right):
+        print(f"{node.data} -> {nval}")
+chars = ['a','e','i','o','u','s','t']
+freq = [10,15,12,3,4,13,1]
+nodes=[]
+for x in range(len(freq)):
+    heapq.heappush(nodes,Node(chars[x],freq[x]))
+while len(nodes)>1:
+    left=heapq.heappop(nodes)
+    right=heapq.heappop(nodes)
+    left.h=0
+    right.h=1
+    NewNode=Node(left.data+right.data,left.frequency+right.frequency,left,right)
+    heapq.heappush(nodes,NewNode)
+display(nodes[0])

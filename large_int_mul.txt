@@ -1,0 +1,32 @@
+def karatsuba(x, y):
+
+   # Convert the numbers to strings for easier manipulation
+   x_str = str(x)
+   y_str = str(y)
+
+   # Base case: if either of the numbers is a single digit
+   if len(x_str) == 1 or len(y_str) == 1:
+      return x * y
+
+   # Find the middle index
+   n = max(len(x_str), len(y_str))
+   m = n // 2
+
+   # Split the numbers into halves
+   a, b = int(x_str[:-m]), int(x_str[-m:])
+   c, d = int(y_str[:-m]), int(y_str[-m:])
+
+   # Recursive calls
+   ac = karatsuba(a, c)
+   bd = karatsuba(b, d)
+   ad_bc = karatsuba(a + b, c + d) - ac - bd
+
+   # Combine the results
+   result = (10 ** (2 * m)) * ac + (10 ** m) * ad_bc + bd
+   return result
+
+# Input large integers
+num1 = int(input("Enter the first large integer: "))
+num2 = int(input("Enter the second large integer: "))
+product = karatsuba(num1, num2)
+print("Product:", product)

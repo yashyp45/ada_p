@@ -1,0 +1,92 @@
+        [9, 2, 7, 8],
+        [6, 4, 3, 7],
+        [5, 8, 1, 8],
+        [7, 6, 9, 4]
+
+
+
+import queue
+
+class Node:
+    def __init__(self, x, y, assigned, parent=None):
+        self.parent = parent
+        self.pathCost = 0
+        self.cost = 0
+        self.workerID = x
+        self.jobID = y
+        self.assigned = assigned.copy()
+
+def calculateCost(costMatrix, x, y, assigned):
+    cost = 0
+    available = [True] * N
+
+    for i in range(x + 1, N):
+        min_cost = float('inf')
+        min_index = -1
+
+        for j in range(N):
+            if not assigned[j] and available[j] and costMatrix[i][j] < min_cost:
+                min_index = j
+                min_cost = costMatrix[i][j]
+
+        cost += min_cost
+        available[min_index] = False
+
+    return cost
+
+class Comp:
+    def __init__(self, node):
+        self.node = node
+
+    def __lt__(self, other):
+        return self.node.cost < other.node.cost
+
+def printAssignments(min_node):
+    if min_node.parent is None:
+        return
+
+    printAssignments(min_node.parent)
+    print(f"Assign Worker {chr(min_node.workerID + ord('A'))} to Job {min_node.jobID + 1}")
+
+def findMinCost(costMatrix):
+    pq = queue.PriorityQueue()
+
+    assigned = [False] * N
+    root = Node(-1, -1, assigned, None)
+    root.pathCost = root.cost = 0
+    root.workerID = -1
+
+    pq.put(Comp(root))
+
+    while not pq.empty():
+        min_comp = pq.get()
+        min_node = min_comp.node
+
+        i = min_node.workerID + 1
+
+        if i == N:
+            printAssignments(min_node)
+            return min_node.cost
+
+        for j in range(N):
+            if not min_node.assigned[j]:
+                child = Node(i, j, min_node.assigned, min_node)
+                child.pathCost = min_node.pathCost + costMatrix[i][j]
+                child.cost = child.pathCost + calculateCost(costMatrix, i, j, child.assigned)
+                pq.put(Comp(child))
+                child.assigned[j] = True
+
+# Function to take manual input for the cost matrix
+def inputCostMatrix():
+    costMatrix = []
+    N= int(input("Enter size of Matrix: "))
+    print("Enter the cost matrix",N,"X",N,":")
+    for i in range(N):
+        row = list(map(int, input().split()))
+        costMatrix.append(row)
+    return costMatrix
+
+if __name__ == "__main__":
+    costMatrix = inputCostMatrix()
+
+    print("\nOptimal Cost is", findMinCost(costMatrix))

@@ -1,0 +1,67 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
+
+void quicksort(std::vector<int>& arr, int low, int high) {
+    if (low < high) {
+        int pivot = arr[high];
+        int i = low - 1;
+
+        for (int j = low; j <= high - 1; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+
+        #pragma omp task shared(arr) firstprivate(low, pi)
+        {
+            quicksort(arr, low, pi - 1);
+        }
+        #pragma omp task shared(arr) firstprivate(high, pi)
+        {
+            quicksort(arr, pi + 1, high);
+        }
+    }
+}
+
+void parallel_quicksort(std::vector<int>& arr) {
+    #pragma omp parallel
+    {
+        #pragma omp single nowait
+        {
+            quicksort(arr, 0, arr.size() - 1);
+        }
+    }
+}
+
+int main() {
+    int size;
+    std::cout << "Enter the number of elements: ";
+    std::cin >> size;
+
+    std::vector<int> data(size);
+    std::cout << "Enter " << size << " elements: ";
+    for (int i = 0; i < size; ++i) {
+        std::cin >> data[i];
+    }
+
+    std::cout << "Original Array:" << std::endl;
+    for (int num : data) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+
+    parallel_quicksort(data);
+
+    std::cout << "Sorted Array:" << std::endl;
+    for (int num : data) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
